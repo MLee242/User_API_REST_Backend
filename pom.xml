@@ -12,7 +12,6 @@
 	<groupId>com.appsdeveloperblog.app.ws</groupId>
 	<artifactId>mobile-app-ws-1</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
 
 	<name>mobile-app-ws-1</name>
 	<description>Demo project for Restful spring boot</description>
