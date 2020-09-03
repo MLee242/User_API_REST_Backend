@@ -1,5 +1,7 @@
 package com.appdeveloperblog.app.ws.model.response;
 
 public enum RequestOperationName {
-	DELETE
+	DELETE,
+	REQUEST_PASSWORD_RESET,
+	
 }

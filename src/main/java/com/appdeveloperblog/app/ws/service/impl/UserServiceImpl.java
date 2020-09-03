@@ -149,5 +149,21 @@ public class UserServiceImpl implements UserService {
 		}
 		return returnValue;
 	}
-
+	/*
+	@Override
+	public boolean requestPasswordReset(String email) {
+		
+		boolean returnValue = false;
+		
+		UserEntity userEntity = userRepository.findByEmail(email);
+		if( userEntity == null ) {
+			return returnValue;
+		}
+		
+	
+		
+		
+		
+	}
+	*/
 }

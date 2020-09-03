@@ -1,11 +1,16 @@
 package com.appdeveloperblog.app.ws.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appdeveloperblog.app.ws.model.request.PasswordRequestModel;
 import com.appdeveloperblog.app.ws.model.request.UserDetailsRequestModel;
 import com.appdeveloperblog.app.ws.model.response.AddressRest;
 import com.appdeveloperblog.app.ws.model.response.OperationStatusModel;
@@ -33,7 +39,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("/users")
 public class UserController {
 
 	@Autowired
@@ -195,7 +201,7 @@ public class UserController {
 			MediaType.APPLICATION_JSON_VALUE
 			
 	})
-	public List<AddressRest> getUserAddresses(@PathVariable("userId")String userId){
+	public CollectionModel<AddressRest> getUserAddresses(@PathVariable("userId")String userId){
 		
 		List<AddressRest> returnValue = new ArrayList<>();
 		List<AddressDto> addressesDto = addressService.getAddresses(userId);
@@ -205,9 +211,32 @@ public class UserController {
 			java.lang.reflect.Type listType = new TypeToken<List<AddressRest>>() {}.getType();
 			returnValue = new ModelMapper().map(addressesDto, listType);
 			
+			
+			for(AddressRest addressRest: returnValue) {
+				Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressRest.getAddressId()))
+						//.slash(userId)
+						//.slash("addresses")
+						//.slash(addressId)
+						.withSelfRel();
+				
+				addressRest.add(selfLink);
+				
+			}
+			
+			
 		}
-
-		return returnValue;
+		
+		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class)
+				.slash(userId)
+				.withRel("user");
+		
+		Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(userId))
+				//.slash(userId)
+				//.slash("addresses")
+				//.slash(addressId)
+				.withSelfRel();
+		
+		return CollectionModel.of(returnValue, userLink, selfLink);
 		
 	}
 	
@@ -221,13 +250,67 @@ public class UserController {
 			MediaType.APPLICATION_JSON_VALUE
 			
 	})
-	public AddressRest getUserAddress( @PathVariable("addressId") String addressId){
+	public EntityModel<AddressRest> getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId){
 		
 		AddressRest returnValue = new AddressRest();
 		AddressDto addressDto = addressService.getAddress(addressId);
 		ModelMapper modelMapper = new ModelMapper();
+		
 		returnValue = modelMapper.map(addressDto, AddressRest.class);
-		return returnValue;
+		// http://localhost:8080/mobile-app-ws/users/<userId>
+		Link userLink = WebMvcLinkBuilder.linkTo(UserController.class)
+				.slash(userId)
+				.withRel("user");
+		Link userAddressLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(userId))
+				//.slash(userId)
+				//.slash("addresses")
+				.withRel("addresses");
+		Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressId))
+				//.slash(userId)
+				//.slash("addresses")
+				//.slash(addressId)
+				.withSelfRel();
+		
+		//returnValue.add(userLink);
+		//returnValue.add(userAddressLink);
+		//returnValue.add(selfLink);
+		
+		
+		
+		return EntityModel.of(returnValue, Arrays.asList(userLink, userAddressLink, selfLink));
 		
 	}
+	/*
+	@PostMapping(path = "/password-reset-request",
+		produces= {
+				MediaType.APPLICATION_XML_VALUE,
+				MediaType.APPLICATION_JSON_VALUE
+				
+		},consumes = {
+				MediaType.APPLICATION_XML_VALUE,
+				MediaType.APPLICATION_JSON_VALUE
+				
+		}
+	)
+	public OperationStatusModel requestReset(@RequestBody PasswordRequestModel passwordResetRequestModel) {
+			
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
+		
+		returnValue.setOperationName(RequestOperationName.REQUEST_PASSWORD_RESET.name());
+		
+		returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		
+		if(operationResult) {
+			returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+			
+		}
+		return returnValue;
+	}
+	*/
+	
+	
+	
+	
 }
