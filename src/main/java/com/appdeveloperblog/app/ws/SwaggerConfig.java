@@ -27,7 +27,7 @@ public class SwaggerConfig {
 	
 	private ApiInfo apiEndInfo() {
 	    return new ApiInfoBuilder().title("API Reference")
-	            .description("User API RESTful Web Service Documentation")
+	            .description("Issue Tracker API RESTful Web Service Documentation")
 	            .contact(contact)
 	            .license("Apache 2.0")
 	            .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0.html")
