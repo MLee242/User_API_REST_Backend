@@ -2,7 +2,7 @@
 
 User Registration RESTful Web Service application with Java Spring Boot, Spring Security, Spring Data JPA, Spring MVC
 
-## RestAPI Documentation
+## REST API Documentation
 https://usersrestapispring.herokuapp.com/api/swagger-ui.html
 
 ## Features include
